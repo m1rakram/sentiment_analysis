@@ -1,9 +1,16 @@
 import torch
 import pandas as pd
 import csv
-
+from transformers import BertTokenizer
+from torch.utils.data import TensorDataset
 
 csv_path = "dataset/half_translated_imdb.csv"
+
+tokenizer = BertTokenizer.from_pretrained(
+    'bert-base-uncased',
+    do_lower_case=True
+)
+#print(tokenizer.batch_encode_plus.__doc__)
 
 class review_data(torch.utils.data.Dataset):
     def __init__(self, mode, csv_path = csv_path):
@@ -15,32 +22,63 @@ class review_data(torch.utils.data.Dataset):
 
         self.samples = data["eng_review"].to_list()
         self.labels = self.convert_binary(data["label"].to_list())
-        print(sum(self.labels))
+
         test_list = []
+        test_label = []
         train_list = []
+        train_label = []
         val_list = []
+        val_label = []
+
+        
+
         for i in range(len(self.samples)):
             if (i%25==0):
-                test_list.append([self.samples[i], self.labels[i]])
+                test_list.append(self.samples[i])
+                test_label.append(self.labels[i])
             elif(i%33 == 0):
-                val_list.append([self.samples[i], self.labels[i]])
+                val_list.append(self.samples[i])
+                val_label.append(self.labels[i])
             else:
-                train_list.append([self.samples[i], self.labels[i]])
+                train_list.append(self.samples[i])
+                train_label.append(self.labels[i])
 
 
         if(self.mode == "train"):
             self.list = train_list
+            self.label = train_label
         elif(self.mode =="test"):
             self.list = test_list
+            self.label = test_label
         else:
             self.list = val_list
+            self.label = val_label
+
+
+        
+
+        
 
     def __len__(self):
         return len(self.list)
 
     def __getitem__(self, idx):
         
-        return 
+        encoded_data_train = tokenizer.encode_plus(
+            self.list[idx],
+            add_special_tokens=True,
+            return_attention_mask=True,
+            padding='max_length',
+            max_length=512,
+            truncation=True,
+            return_tensors='pt')
+                
+        input_ids = encoded_data_train['input_ids']
+        attention_mask = encoded_data_train['attention_mask']
+
+        #print(input_ids.shape, attention_mask.shape)
+
+        return input_ids.squeeze(), attention_mask.squeeze(), torch.tensor(self.label[idx])
         
 
     def convert_binary(self, label):
@@ -54,6 +92,7 @@ class review_data(torch.utils.data.Dataset):
 
 
 
-t = review_data("train")
+
+
 
         
