@@ -2,9 +2,8 @@ import torch
 import pandas as pd
 import csv
 from transformers import BertTokenizer
-from torch.utils.data import TensorDataset
 
-csv_path = "dataset/half_translated_imdb.csv"
+csv_path = "dataset/full_translated_imdb.csv"
 
 tokenizer = BertTokenizer.from_pretrained(
     'bert-base-uncased',
@@ -13,14 +12,19 @@ tokenizer = BertTokenizer.from_pretrained(
 #print(tokenizer.batch_encode_plus.__doc__)
 
 class review_data(torch.utils.data.Dataset):
-    def __init__(self, mode, csv_path = csv_path):
+    def __init__(self, mode, language = "az", csv_path = csv_path):
         self.mode = mode
         with open(csv_path, "r", encoding = "utf8") as file:
 
             data = pd.read_csv(file) 
 
+        if(language == "az"):
+            self.samples = data["az_review"].to_list()
 
-        self.samples = data["eng_review"].to_list()
+        else:
+            self.samples = data["eng_review"].to_list()
+
+
         self.labels = self.convert_binary(data["label"].to_list())
 
         test_list = []

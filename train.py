@@ -32,7 +32,7 @@ def eval(model, dataloader_val, loss, device, writer, epoch):
     val_iterator = enumerate(dataloader_val)
     loss_total = 0
     tq = tqdm.tqdm(total = len(dataloader_val))
-    tq.set_description('VAlidation ')
+    tq.set_description('Validation ')
     correct_predictions = 0
     f1= 0
     with torch.no_grad():
@@ -63,7 +63,7 @@ def eval(model, dataloader_val, loss, device, writer, epoch):
 def train(model, dataloader_train, dataloader_val, loss, optimizer, device, scheduler, max_epoch):
     
 
-    writer  = SummaryWriter(comment="Sentiment_English")
+    writer  = SummaryWriter(comment="Sentiment_Azerbaijani_full")
     
     for epoch in range(max_epoch):
         model.train()
@@ -114,7 +114,7 @@ def train(model, dataloader_train, dataloader_val, loss, optimizer, device, sche
                 'optimizer': optimizer.state_dict()
             }
 
-        torch.save(checkpoint, os.path.join("models/", 'latest_model.pth'))
+        torch.save(checkpoint, os.path.join("models/", 'latest_model_aze_full.pth'))
         print("saving the model " )
 
         
