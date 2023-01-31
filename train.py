@@ -1,4 +1,4 @@
-from dataset.read_csv import review_data
+from dataset.read_csv import review_data, kapital, kapital_mixed
 from transformers import BertForSequenceClassification
 from models.sentiment_classifier import SentimentClassifier
 from transformers import AdamW, get_linear_schedule_with_warmup
@@ -20,7 +20,7 @@ np.random.seed(seed_val)
 torch.manual_seed(seed_val)
 torch.cuda.manual_seed_all(seed_val)
 
-num_of_classes = 2
+num_of_classes = 3
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device, " is available")
@@ -63,7 +63,7 @@ def eval(model, dataloader_val, loss, device, writer, epoch):
 def train(model, dataloader_train, dataloader_val, loss, optimizer, device, scheduler, max_epoch):
     
 
-    writer  = SummaryWriter(comment="Sentiment_Azerbaijani_full")
+    writer  = SummaryWriter(comment="_Kapital_data_3")
     
     for epoch in range(max_epoch):
         model.train()
@@ -114,7 +114,7 @@ def train(model, dataloader_train, dataloader_val, loss, optimizer, device, sche
                 'optimizer': optimizer.state_dict()
             }
 
-        torch.save(checkpoint, os.path.join("models/", 'latest_model_aze_full.pth'))
+        torch.save(checkpoint, os.path.join("models/", 'kapital_data_tf_idf.pth'))
         print("saving the model " )
 
         
@@ -126,8 +126,8 @@ def train(model, dataloader_train, dataloader_val, loss, optimizer, device, sche
 
 
 
-train_data = review_data("train")
-val_data = review_data("val")
+train_data = kapital_mixed("train")
+val_data = kapital_mixed("val")
 
 dataloader_train = DataLoader(
     train_data,
@@ -153,7 +153,7 @@ dataloader_val = DataLoader(
 #                                       output_hidden_states = False
 #                                      ).to(device)
 
-model= SentimentClassifier(2).to(device)
+model= SentimentClassifier(3).to(device)
 
 
 optimizer = AdamW(model.parameters(), lr = 1e-5, eps = 1e-8)
